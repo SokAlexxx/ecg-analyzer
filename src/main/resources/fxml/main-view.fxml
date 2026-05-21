@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
@@ -14,8 +16,8 @@
 <BorderPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.ecganalyzer.controller.MainController"
-            prefWidth="1200"
-            prefHeight="750">
+            prefWidth="1280"
+            prefHeight="780">
 
     <top>
         <MenuBar>
@@ -43,10 +45,7 @@
     </top>
 
     <left>
-        <VBox spacing="10"
-              prefWidth="220"
-              styleClass="sidebar">
-
+        <VBox spacing="10" prefWidth="220" styleClass="sidebar">
             <padding>
                 <Insets top="15" right="15" bottom="15" left="15"/>
             </padding>
@@ -66,70 +65,73 @@
                 <Insets top="20" right="30" bottom="20" left="30"/>
             </padding>
 
-            <VBox spacing="12" prefWidth="560">
-                <Label fx:id="titleLabel"
-                       text="ECG Analyzer"
-                       styleClass="main-title"/>
+            <VBox spacing="12" prefWidth="360">
+                <Label fx:id="titleLabel" text="ECG Analyzer" styleClass="main-title"/>
+                <Label fx:id="descriptionLabel" text="Module 3: ECG Signal Visualization"/>
 
-                <Label fx:id="descriptionLabel"
-                       text="Module 2: ECG Record Management"/>
-
-                <VBox spacing="8"
-                      styleClass="content-card">
-
+                <VBox spacing="8" styleClass="content-card">
                     <padding>
                         <Insets top="18" right="18" bottom="18" left="18"/>
                     </padding>
 
-                    <Label text="ECG Record Information"
-                           styleClass="section-title"/>
+                    <Label text="ECG Record Information" styleClass="section-title"/>
 
-                    <Button text="Load ECG Record"
-                            prefWidth="180"
-                            onAction="#onOpen"/>
+                    <Button text="Load ECG Record" prefWidth="180" onAction="#onOpen"/>
 
-                    <Label fx:id="recordNameLabel"
-                           text="Record name: —"/>
+                    <Label fx:id="recordNameLabel" text="Record name: —"/>
+                    <Label fx:id="channelsLabel" text="Channels: —"/>
+                    <Label fx:id="frequencyLabel" text="Sampling frequency: —"/>
+                    <Label fx:id="samplesLabel" text="Samples: —"/>
+                    <Label fx:id="signalFormatLabel" text="Signal format: —"/>
+                    <Label fx:id="gainLabel" text="Gain: —"/>
+                    <Label fx:id="baselineLabel" text="Baseline: —"/>
+                    <Label fx:id="signalFileLabel" text="Signal file: —"/>
+                    <Label fx:id="annotationFileLabel" text="Annotation file: —"/>
+                    <Label fx:id="annotationsLabel" text="Annotations: —"/>
+                </VBox>
 
-                    <Label fx:id="channelsLabel"
-                           text="Channels: —"/>
+                <VBox spacing="10" styleClass="content-card">
+                    <padding>
+                        <Insets top="18" right="18" bottom="18" left="18"/>
+                    </padding>
 
-                    <Label fx:id="frequencyLabel"
-                           text="Sampling frequency: —"/>
-
-                    <Label fx:id="samplesLabel"
-                           text="Samples: —"/>
-
-                    <Label fx:id="signalFormatLabel"
-                           text="Signal format: —"/>
-
-                    <Label fx:id="gainLabel"
-                           text="Gain: —"/>
-
-                    <Label fx:id="baselineLabel"
-                           text="Baseline: —"/>
-
-                    <Label fx:id="signalFileLabel"
-                           text="Signal file: —"/>
-
-                    <Label fx:id="annotationFileLabel"
-                           text="Annotation file: —"/>
-
-                    <Label fx:id="annotationsLabel"
-                           text="Annotations: —"/>
+                    <Label text="Saved ECG Records" styleClass="section-title"/>
+                    <ListView fx:id="recordsListView" prefHeight="210"/>
                 </VBox>
             </VBox>
 
-            <VBox spacing="10" prefWidth="360" styleClass="content-card">
+            <VBox spacing="12" prefWidth="650" styleClass="content-card">
                 <padding>
                     <Insets top="18" right="18" bottom="18" left="18"/>
                 </padding>
 
-                <Label text="Saved ECG Records"
-                       styleClass="section-title"/>
+                <Label text="Signal Visualization" styleClass="section-title"/>
 
-                <ListView fx:id="recordsListView"
-                          prefHeight="500"/>
+                <LineChart fx:id="signalChart"
+                           animated="false"
+                           createSymbols="false"
+                           legendVisible="false"
+                           prefHeight="430">
+                    <xAxis>
+                        <NumberAxis fx:id="xAxis" label="Time, s"/>
+                    </xAxis>
+                    <yAxis>
+                        <NumberAxis fx:id="yAxis" label="Amplitude, mV"/>
+                    </yAxis>
+                </LineChart>
+
+                <HBox spacing="8">
+                    <Button text="Start" onAction="#onSignalStart"/>
+                    <Button text="Previous" onAction="#onSignalPrevious"/>
+                    <Button text="Next" onAction="#onSignalNext"/>
+                    <Button text="End" onAction="#onSignalEnd"/>
+                    <Button text="Zoom In" onAction="#onZoomIn"/>
+                    <Button text="Zoom Out" onAction="#onZoomOut"/>
+                    <Button text="Reset" onAction="#onResetView"/>
+                </HBox>
+
+                <Label fx:id="windowInfoLabel" text="Window: —"/>
+                <Label fx:id="chartHintLabel" text="Mouse wheel: zoom. Drag chart horizontally: pan."/>
             </VBox>
         </HBox>
     </center>
@@ -140,8 +142,7 @@
                 <Insets top="10" right="10" bottom="10" left="10"/>
             </padding>
 
-            <Label fx:id="statusLabel"
-                   text="Status: Ready"/>
+            <Label fx:id="statusLabel" text="Status: Ready"/>
         </HBox>
     </bottom>
 

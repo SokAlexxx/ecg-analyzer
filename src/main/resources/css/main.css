@@ -40,3 +40,23 @@
     -fx-border-color: #bdbdbd;
     -fx-border-width: 1 0 0 0;
 }
+
+.content-card {
+    -fx-background-color: white;
+    -fx-background-radius: 8;
+    -fx-border-color: #d7dde2;
+    -fx-border-radius: 8;
+}
+
+.section-title {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+}
+
+.chart {
+    -fx-background-color: transparent;
+}
+
+.chart-plot-background {
+    -fx-background-color: #fbfbfb;
+}
