@@ -33,6 +33,9 @@ public class MITBIHHeaderParser {
             long sampleCount = mainParts.length >= 4 ? Long.parseLong(mainParts[3]) : 0;
 
             List<String> leadNames = new ArrayList<>();
+            List<Integer> signalFormats = new ArrayList<>();
+            List<Double> gains = new ArrayList<>();
+            List<Integer> baselines = new ArrayList<>();
 
             for (int i = 0; i < channels; i++) {
                 String signalLine = reader.readLine();
@@ -42,6 +45,22 @@ public class MITBIHHeaderParser {
                 }
 
                 String[] signalParts = signalLine.trim().split("\\s+");
+
+                if (signalParts.length >= 2) {
+                    signalFormats.add(parseSignalFormat(signalParts[1]));
+                }
+
+                if (signalParts.length >= 3) {
+                    gains.add(parseGain(signalParts[2]));
+                } else {
+                    gains.add(200.0);
+                }
+
+                if (signalParts.length >= 5) {
+                    baselines.add(parseIntegerSafe(signalParts[4], 0));
+                } else {
+                    baselines.add(0);
+                }
 
                 if (signalParts.length > 0) {
                     leadNames.add(signalParts[signalParts.length - 1]);
@@ -53,7 +72,10 @@ public class MITBIHHeaderParser {
                     channels,
                     samplingFrequency,
                     sampleCount,
-                    leadNames
+                    leadNames,
+                    signalFormats,
+                    gains,
+                    baselines
             );
 
         } catch (IOException e) {
@@ -73,5 +95,37 @@ public class MITBIHHeaderParser {
         }
 
         return Integer.parseInt(value);
+    }
+
+    private int parseSignalFormat(String value) {
+        String cleaned = value.trim();
+
+        if (cleaned.contains("+")) {
+            cleaned = cleaned.substring(0, cleaned.indexOf("+"));
+        }
+
+        if (cleaned.contains(":")) {
+            cleaned = cleaned.substring(0, cleaned.indexOf(":"));
+        }
+
+        return Integer.parseInt(cleaned);
+    }
+
+    private double parseGain(String value) {
+        String cleaned = value.trim();
+
+        if (cleaned.contains("/")) {
+            cleaned = cleaned.substring(0, cleaned.indexOf("/"));
+        }
+
+        return Double.parseDouble(cleaned);
+    }
+
+    private int parseIntegerSafe(String value, int defaultValue) {
+        try {
+            return Integer.parseInt(value.trim());
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
     }
 }

@@ -2,23 +2,38 @@ package com.ecganalyzer.parser;
 
 public class ECGSignalData {
 
-    private final int[] channelOne;
-    private final int[] channelTwo;
+    private final int[] channelOneAdc;
+    private final int[] channelTwoAdc;
+    private final double[] channelOneMv;
+    private final double[] channelTwoMv;
 
-    public ECGSignalData(int[] channelOne, int[] channelTwo) {
-        this.channelOne = channelOne;
-        this.channelTwo = channelTwo;
+    public ECGSignalData(int[] channelOneAdc,
+                         int[] channelTwoAdc,
+                         double[] channelOneMv,
+                         double[] channelTwoMv) {
+        this.channelOneAdc = channelOneAdc;
+        this.channelTwoAdc = channelTwoAdc;
+        this.channelOneMv = channelOneMv;
+        this.channelTwoMv = channelTwoMv;
     }
 
-    public int[] getChannelOne() {
-        return channelOne;
+    public int[] getChannelOneAdc() {
+        return channelOneAdc;
     }
 
-    public int[] getChannelTwo() {
-        return channelTwo;
+    public int[] getChannelTwoAdc() {
+        return channelTwoAdc;
+    }
+
+    public double[] getChannelOneMv() {
+        return channelOneMv;
+    }
+
+    public double[] getChannelTwoMv() {
+        return channelTwoMv;
     }
 
     public int getSampleCount() {
-        return channelOne.length;
+        return channelOneAdc.length;
     }
 }

@@ -7,8 +7,8 @@ import com.ecganalyzer.parser.MITBIHAnnotationParser;
 import com.ecganalyzer.parser.MITBIHHeaderData;
 import com.ecganalyzer.parser.MITBIHHeaderParser;
 import com.ecganalyzer.parser.MITBIHSignalParser;
-import com.ecganalyzer.util.ECGFileUtils;
 import com.ecganalyzer.repository.ECGRecordRepository;
+import com.ecganalyzer.util.ECGFileUtils;
 
 import java.io.File;
 import java.util.List;
@@ -39,11 +39,7 @@ public class ECGRecordServiceImpl implements ECGRecordService {
         }
 
         MITBIHHeaderData headerData = headerParser.parse(headerFile);
-
-        ECGSignalData signalData = signalParser.parseFormat212(
-                signalFile,
-                headerData.getSampleCount()
-        );
+        ECGSignalData signalData = signalParser.parse(signalFile, headerData);
 
         List<ECGAnnotation> annotations = annotationParser.parse(
                 annotationFile.exists() ? annotationFile : null
@@ -58,12 +54,17 @@ public class ECGRecordServiceImpl implements ECGRecordService {
                 headerData.getSamplingFrequency(),
                 headerData.getSampleCount(),
                 headerData.getLeadNames(),
-                signalData.getChannelOne(),
-                signalData.getChannelTwo(),
+                headerData.getSignalFormats(),
+                headerData.getGains(),
+                headerData.getBaselines(),
+                signalData.getChannelOneAdc(),
+                signalData.getChannelTwoAdc(),
+                signalData.getChannelOneMv(),
+                signalData.getChannelTwoMv(),
                 annotations
         );
 
-        recordRepository.save(record);
+        recordRepository.saveOrUpdate(record);
 
         return record;
     }

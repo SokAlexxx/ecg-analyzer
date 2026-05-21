@@ -1,22 +1,26 @@
 package com.ecganalyzer.controller;
 
 import com.ecganalyzer.config.AppConfig;
+import com.ecganalyzer.database.DatabaseManager;
 import com.ecganalyzer.model.ApplicationView;
 import com.ecganalyzer.model.AppState;
 import com.ecganalyzer.model.ECGRecord;
+import com.ecganalyzer.model.ECGRecordSummary;
+import com.ecganalyzer.repository.ECGRecordRepository;
 import com.ecganalyzer.service.ECGRecordService;
 import com.ecganalyzer.service.ECGRecordServiceImpl;
 import com.ecganalyzer.util.DialogUtils;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.stage.FileChooser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.ecganalyzer.database.DatabaseManager;
-import com.ecganalyzer.repository.ECGRecordRepository;
 
 import java.io.File;
+import java.util.List;
 
 public class MainController {
 
@@ -42,6 +46,15 @@ public class MainController {
     private Label samplesLabel;
 
     @FXML
+    private Label signalFormatLabel;
+
+    @FXML
+    private Label gainLabel;
+
+    @FXML
+    private Label baselineLabel;
+
+    @FXML
     private Label signalFileLabel;
 
     @FXML
@@ -50,8 +63,10 @@ public class MainController {
     @FXML
     private Label annotationsLabel;
 
-    private final AppState appState = new AppState();
+    @FXML
+    private ListView<String> recordsListView;
 
+    private final AppState appState = new AppState();
     private final ECGRecordService ecgRecordService = new ECGRecordServiceImpl();
     private final ECGRecordRepository recordRepository = new ECGRecordRepository();
 
@@ -65,9 +80,9 @@ public class MainController {
         DatabaseManager.initializeDatabase();
 
         switchView(appState.getCurrentView());
+        loadSavedRecords();
 
-        int recordsCount = recordRepository.countRecords();
-        setStatus("Ready. Saved ECG records: " + recordsCount);
+        setStatus("Ready. Saved ECG records: " + recordRepository.countRecords());
     }
 
     @FXML
@@ -100,6 +115,7 @@ public class MainController {
         try {
             ECGRecord record = ecgRecordService.loadRecord(selectedFile);
             showRecordInfo(record);
+            loadSavedRecords();
             setStatus("ECG record loaded: " + record.getRecordName());
             logger.info("ECG record loaded: {}", record.getRecordName());
         } catch (Exception e) {
@@ -110,7 +126,7 @@ public class MainController {
 
     @FXML
     private void onSave() {
-        setStatus("Save action selected");
+        setStatus("Current ECG record metadata is saved automatically");
     }
 
     @FXML
@@ -142,6 +158,7 @@ public class MainController {
     private void onEcgRecords() {
         titleLabel.setText("ECG Records");
         descriptionLabel.setText("Module 2: ECG Record Management");
+        loadSavedRecords();
         setStatus("ECG Records view selected");
     }
 
@@ -190,6 +207,12 @@ public class MainController {
 
         samplesLabel.setText("Samples: " + record.getSampleCount());
 
+        signalFormatLabel.setText("Signal format: " + record.getSignalFormats());
+
+        gainLabel.setText("Gain: " + record.getGains());
+
+        baselineLabel.setText("Baseline: " + record.getBaselines());
+
         signalFileLabel.setText("Signal file: "
                 + record.getSignalFile().getName());
 
@@ -208,11 +231,34 @@ public class MainController {
                 + " annotations");
     }
 
+    private void loadSavedRecords() {
+        List<ECGRecordSummary> summaries = recordRepository.findAllSummaries();
+
+        List<String> items = summaries.stream()
+                .map(this::formatSummary)
+                .toList();
+
+        recordsListView.setItems(FXCollections.observableArrayList(items));
+    }
+
+    private String formatSummary(ECGRecordSummary summary) {
+        return summary.getRecordName()
+                + " | "
+                + summary.getSamplingFrequency()
+                + " Hz | "
+                + summary.getLeadNames()
+                + " | annotations: "
+                + summary.getAnnotationsCount();
+    }
+
     private void clearRecordInfo() {
         recordNameLabel.setText("Record name: —");
         channelsLabel.setText("Channels: —");
         frequencyLabel.setText("Sampling frequency: —");
         samplesLabel.setText("Samples: —");
+        signalFormatLabel.setText("Signal format: —");
+        gainLabel.setText("Gain: —");
+        baselineLabel.setText("Baseline: —");
         signalFileLabel.setText("Signal file: —");
         annotationFileLabel.setText("Annotation file: —");
         annotationsLabel.setText("Annotations: —");
