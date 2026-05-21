@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.ecganalyzer.controller.MainController"
+            prefWidth="1200"
+            prefHeight="750">
+
+    <top>
+        <MenuBar>
+            <Menu text="File">
+                <MenuItem text="New Project" onAction="#onNewProject"/>
+                <MenuItem text="Open ECG Record" onAction="#onOpen"/>
+                <MenuItem text="Save" onAction="#onSave"/>
+                <MenuItem text="Exit" onAction="#onExit"/>
+            </Menu>
+
+            <Menu text="View">
+                <MenuItem text="Zoom In" onAction="#onZoomIn"/>
+                <MenuItem text="Zoom Out" onAction="#onZoomOut"/>
+                <MenuItem text="Reset View" onAction="#onResetView"/>
+            </Menu>
+
+            <Menu text="Tools">
+                <MenuItem text="Settings" onAction="#onSettings"/>
+            </Menu>
+
+            <Menu text="Help">
+                <MenuItem text="About" onAction="#onAbout"/>
+            </Menu>
+        </MenuBar>
+    </top>
+
+    <left>
+        <VBox spacing="10"
+              prefWidth="220"
+              styleClass="sidebar">
+
+            <padding>
+                <Insets top="15" right="15" bottom="15" left="15"/>
+            </padding>
+
+            <Label text="Navigation"
+                   styleClass="sidebar-title"/>
+
+            <Button text="Dashboard" prefWidth="180" onAction="#onDashboard"/>
+            <Button text="ECG Records" prefWidth="180" onAction="#onEcgRecords"/>
+            <Button text="Visualization" prefWidth="180" onAction="#onVisualization"/>
+            <Button text="Settings" prefWidth="180" onAction="#onSettings"/>
+        </VBox>
+    </left>
+
+    <center>
+        <VBox alignment="CENTER" spacing="12">
+            <padding>
+                <Insets top="20" right="30" bottom="20" left="30"/>
+            </padding>
+
+            <Label fx:id="titleLabel"
+                   text="ECG Analyzer"
+                   styleClass="main-title"/>
+
+            <Label fx:id="descriptionLabel"
+                   text="Module 1: Application Framework"/>
+
+            <VBox spacing="8"
+                  maxWidth="520"
+                  styleClass="content-card">
+
+                <padding>
+                    <Insets top="18" right="18" bottom="18" left="18"/>
+                </padding>
+
+                <Label text="ECG Record Information"
+                       styleClass="section-title"/>
+
+                <Button text="Load ECG Record"
+                        prefWidth="180"
+                        onAction="#onOpen"/>
+
+                <Label fx:id="recordNameLabel"
+                       text="Record name: —"/>
+
+                <Label fx:id="channelsLabel"
+                       text="Channels: —"/>
+
+                <Label fx:id="frequencyLabel"
+                       text="Sampling frequency: —"/>
+
+                <Label fx:id="samplesLabel"
+                       text="Samples: —"/>
+
+                <Label fx:id="signalFileLabel"
+                       text="Signal file: —"/>
+
+                <Label fx:id="annotationFileLabel"
+                       text="Annotation file: —"/>
+
+                <Label fx:id="annotationsLabel"
+                       text="Annotations: —"/>
+            </VBox>
+        </VBox>
+    </center>
+
+    <bottom>
+        <HBox styleClass="status-bar">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+
+            <Label fx:id="statusLabel"
+                   text="Status: Ready"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>
