@@ -36,7 +36,17 @@ public class SignalWindowService {
             return 0;
         }
 
-        return Math.min(Math.max(0, signal.length - 1), currentStartIndex + windowSize);
+        int maxStartIndex = Math.max(0, signal.length - windowSize);
+        return Math.min(maxStartIndex, currentStartIndex + windowSize);
+    }
+
+    public int clampStartIndex(double[] signal, int startIndex, int windowSize) {
+        if (signal == null || signal.length == 0) {
+            return 0;
+        }
+
+        int maxStartIndex = Math.max(0, signal.length - windowSize);
+        return Math.max(0, Math.min(startIndex, maxStartIndex));
     }
 
     public int zoomIn(int currentWindowSize) {

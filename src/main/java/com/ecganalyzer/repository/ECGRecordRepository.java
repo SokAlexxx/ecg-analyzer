@@ -14,12 +14,14 @@ import java.util.ArrayList;
 
 public class ECGRecordRepository {
 
-    public void saveOrUpdate(ECGRecord record) {
+    public int saveOrUpdate(ECGRecord record) {
         if (existsByHeaderPath(record.getHeaderFile().getAbsolutePath())) {
             update(record);
         } else {
             save(record);
         }
+
+        return findIdByHeaderPath(record.getHeaderFile().getAbsolutePath());
     }
 
     private void save(ECGRecord record) {
@@ -166,6 +168,27 @@ public class ECGRecordRepository {
 
         } catch (SQLException e) {
             throw new RuntimeException("Помилка отримання списку ЕКГ-записів з бази даних.", e);
+        }
+    }
+
+    private int findIdByHeaderPath(String headerFilePath) {
+        String sql = "SELECT id FROM ecg_records WHERE header_file_path = ?;";
+
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, headerFilePath);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt("id");
+                }
+            }
+
+            throw new IllegalStateException("ЕКГ-запис не знайдено після збереження.");
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Помилка отримання ідентифікатора ЕКГ-запису.", e);
         }
     }
 

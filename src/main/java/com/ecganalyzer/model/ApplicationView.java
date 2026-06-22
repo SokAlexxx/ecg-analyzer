@@ -3,7 +3,7 @@ package com.ecganalyzer.model;
 public enum ApplicationView {
 
     DASHBOARD("Dashboard", "General application overview"),
-    VISUALIZATION("Visualization", "Module 3: ECG Signal Visualization"),
+    VISUALIZATION("Visualization", "Module 5: ECG Signal Analysis"),
     SETTINGS("Settings", "Application settings placeholder");
 
     private final String title;

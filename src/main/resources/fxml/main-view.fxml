@@ -4,114 +4,201 @@
 <?import javafx.scene.chart.LineChart?>
 <?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+
 
 <BorderPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.ecganalyzer.controller.MainController"
+            fx:id="rootPane"
             prefWidth="1280"
-            prefHeight="780">
+            prefHeight="780"
+            styleClass="app-root">
 
     <top>
-        <MenuBar>
-            <Menu text="File">
-                <MenuItem text="New Project" onAction="#onNewProject"/>
-                <MenuItem text="Open ECG Record" onAction="#onOpen"/>
-                <MenuItem text="Save" onAction="#onSave"/>
-                <MenuItem text="Exit" onAction="#onExit"/>
-            </Menu>
+        <VBox styleClass="top-shell">
+            <MenuBar styleClass="app-menu-bar">
+                <Menu text="File">
+                    <MenuItem text="Open ECG Record" onAction="#onOpen"/>
+                    <MenuItem text="Save" onAction="#onSave"/>
+                    <MenuItem text="Exit" onAction="#onExit"/>
+                </Menu>
 
-            <Menu text="View">
-                <MenuItem text="Zoom In" onAction="#onZoomIn"/>
-                <MenuItem text="Zoom Out" onAction="#onZoomOut"/>
-                <MenuItem text="Reset View" onAction="#onResetView"/>
-            </Menu>
+                <Menu text="View">
+                    <MenuItem text="Reset View" onAction="#onResetView"/>
+                    <MenuItem text="Fit Signal" onAction="#onFitSignal"/>
+                    <MenuItem text="Export chart image" onAction="#onExportChartImage"/>
+                </Menu>
 
-            <Menu text="Tools">
-                <MenuItem text="Settings" onAction="#onSettings"/>
-            </Menu>
+                <Menu text="Tools">
+                    <MenuItem text="Settings" onAction="#onSettings"/>
+                </Menu>
 
-            <Menu text="Help">
-                <MenuItem text="About" onAction="#onAbout"/>
-            </Menu>
-        </MenuBar>
+                <Menu text="Help">
+                    <MenuItem text="About" onAction="#onAbout"/>
+                </Menu>
+            </MenuBar>
+
+            <HBox spacing="12" alignment="CENTER_LEFT" styleClass="hero-toolbar">
+                <padding>
+                    <Insets top="10" right="18" bottom="8" left="18"/>
+                </padding>
+                <VBox spacing="2" HBox.hgrow="ALWAYS">
+                    <Label text="ECG Analyzer" styleClass="app-title"/>
+                    <Label text="Medical signal visualization and rhythm analysis workspace" styleClass="app-subtitle"/>
+                </VBox>
+                <Label text="Theme:" styleClass="toolbar-label"/>
+                <ComboBox fx:id="themeComboBox" prefWidth="120" styleClass="theme-combo"/>
+                <Button text="Open ECG" onAction="#onOpen" styleClass="primary-button"/>
+                <Button text="Export PDF" onAction="#onExportPdfReport" styleClass="toolbar-button"/>
+            </HBox>
+        </VBox>
     </top>
 
-    <left>
-        <VBox spacing="10" prefWidth="220" styleClass="sidebar">
-            <padding>
-                <Insets top="15" right="15" bottom="15" left="15"/>
-            </padding>
-
-            <Label text="Navigation" styleClass="sidebar-title"/>
-
-            <Button text="Dashboard" prefWidth="180" onAction="#onDashboard"/>
-            <Button text="ECG Records" prefWidth="180" onAction="#onEcgRecords"/>
-            <Button text="Visualization" prefWidth="180" onAction="#onVisualization"/>
-            <Button text="Settings" prefWidth="180" onAction="#onSettings"/>
-        </VBox>
-    </left>
-
     <center>
-        <HBox spacing="18">
+        <SplitPane dividerPositions="0.25" styleClass="main-split-pane">
             <padding>
-                <Insets top="20" right="30" bottom="20" left="30"/>
+                <Insets top="6" right="10" bottom="2" left="8"/>
             </padding>
 
-            <VBox spacing="12" prefWidth="360">
-                <Label fx:id="titleLabel" text="ECG Analyzer" styleClass="main-title"/>
-                <Label fx:id="descriptionLabel" text="Module 3: ECG Signal Visualization"/>
+            <ScrollPane fitToWidth="true" hbarPolicy="AS_NEEDED" vbarPolicy="AS_NEEDED" minWidth="280" prefWidth="350" maxWidth="540" styleClass="sidebar-scroll">
+                <VBox spacing="12" minWidth="250" prefWidth="325" maxWidth="Infinity" styleClass="left-panel">
+                    <Label fx:id="titleLabel" text="Workspace" styleClass="main-title"/>
+                    <Label fx:id="descriptionLabel" text="Load, inspect and analyze ECG records" styleClass="muted-label"/>
 
-                <VBox spacing="8" styleClass="content-card">
-                    <padding>
-                        <Insets top="18" right="18" bottom="18" left="18"/>
-                    </padding>
+                    <VBox spacing="5" styleClass="content-card compact-card">
+                        <padding>
+                            <Insets top="10" right="10" bottom="10" left="10"/>
+                        </padding>
 
-                    <Label text="ECG Record Information" styleClass="section-title"/>
+                        <Label text="Record" styleClass="section-title"/>
+                        <Label text="Use the Open ECG button in the top toolbar to load a record." styleClass="muted-label" wrapText="true"/>
 
-                    <Button text="Load ECG Record" prefWidth="180" onAction="#onOpen"/>
+                        <Label fx:id="recordNameLabel" text="Record: —"/>
+                        <Label fx:id="channelsLabel" text="Lead: —" wrapText="true"/>
+                        <Label fx:id="frequencyLabel" text="Frequency: —"/>
+                        <Label fx:id="durationLabel" text="Duration: —"/>
+                        <Label fx:id="annotationsLabel" text="Annotations: —"/>
+                    </VBox>
 
-                    <Label fx:id="recordNameLabel" text="Record name: —"/>
-                    <Label fx:id="channelsLabel" text="Channels: —"/>
-                    <Label fx:id="frequencyLabel" text="Sampling frequency: —"/>
-                    <Label fx:id="samplesLabel" text="Samples: —"/>
-                    <Label fx:id="signalFormatLabel" text="Signal format: —"/>
-                    <Label fx:id="gainLabel" text="Gain: —"/>
-                    <Label fx:id="baselineLabel" text="Baseline: —"/>
-                    <Label fx:id="signalFileLabel" text="Signal file: —"/>
-                    <Label fx:id="annotationFileLabel" text="Annotation file: —"/>
-                    <Label fx:id="annotationsLabel" text="Annotations: —"/>
+                    <VBox spacing="5" styleClass="content-card compact-card">
+                        <padding>
+                            <Insets top="10" right="10" bottom="10" left="10"/>
+                        </padding>
+                        <Label text="Layers" styleClass="section-title"/>
+                        <CheckBox fx:id="showRPeaksCheckBox" text="Show R-peaks"/>
+                        <CheckBox fx:id="showAnnotationsCheckBox" text="Show annotations"/>
+                        <CheckBox fx:id="showSuspiciousSegmentsCheckBox" text="Show suspicious RR segments"/>
+                        <CheckBox fx:id="showGridCheckBox" text="Show grid" selected="true"/>
+                    </VBox>
+
+                    <VBox spacing="6" styleClass="analysis-card">
+                        <Label text="Rhythm Analysis" styleClass="section-title"/>
+                        <ComboBox fx:id="analysisModeComboBox" maxWidth="Infinity"/>
+                        <HBox spacing="6">
+                            <Button text="Analyze" onAction="#onRunAnalysis" prefWidth="100" styleClass="primary-button"/>
+                            <Button text="Go to suspicious" onAction="#onGoToSuspiciousSegment" prefWidth="138"/>
+                        </HBox>
+                        <Label fx:id="analysisStatsLabel" text="Amplitude: —" wrapText="true"/>
+                        <Label fx:id="heartRateLabel" text="R-peaks: — | RR: — | HR: —" wrapText="true"/>
+                        <Label fx:id="variabilityLabel" text="SDNN: — | RMSSD: — | pNN50: —" wrapText="true"/>
+                        <Label fx:id="rhythmStatusLabel" text="Rhythm: —" wrapText="true"/>
+                        <Label fx:id="suspiciousSegmentsLabel" text="Suspicious RR segments: —" wrapText="true"/>
+                        <Label fx:id="detectionAccuracyLabel" text="Detection accuracy: —" wrapText="true"/>
+                        <HBox spacing="6">
+                            <Button text="Show report" onAction="#onShowAnalysisReport" prefWidth="100"/>
+                            <Button text="Export report" onAction="#onExportAnalysisReport" prefWidth="112"/>
+                            <Button text="Export metrics" onAction="#onExportAnalysisSummaryCsv" prefWidth="118"/>
+                        </HBox>
+                    </VBox>
+
+                    <VBox spacing="6" styleClass="content-card compact-card">
+                        <padding>
+                            <Insets top="10" right="10" bottom="10" left="10"/>
+                        </padding>
+                        <Label text="Context" styleClass="section-title"/>
+                        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" prefHeight="92" minHeight="70">
+                            <Label fx:id="contextAnalysisLabel" text="Load a record and run analysis." wrapText="true"/>
+                        </ScrollPane>
+                    </VBox>
+
+                    <VBox spacing="6" styleClass="content-card annotations-card" VBox.vgrow="ALWAYS">
+                        <padding>
+                            <Insets top="10" right="10" bottom="10" left="10"/>
+                        </padding>
+
+                        <Label text="Annotations" styleClass="section-title"/>
+                        <HBox spacing="6">
+                            <Label text="Type:"/>
+                            <ComboBox fx:id="annotationFilterComboBox" prefWidth="150" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                        </HBox>
+                        <TextField fx:id="annotationSearchField" promptText="Search sample, type, source, description"/>
+                        <HBox spacing="6">
+                            <Button text="Prev" onAction="#onPreviousAnnotation" prefWidth="58"/>
+                            <Button text="Next" onAction="#onNextAnnotation" prefWidth="58"/>
+                            <Button text="Clear" onAction="#onClearAnnotationSearch" prefWidth="58"/>
+                        </HBox>
+                        <HBox spacing="6">
+                            <Button text="Export annotations" onAction="#onExportAnnotationsCsv" prefWidth="124"/>
+                            <Button text="Export RR" onAction="#onExportRrIntervalsCsv" prefWidth="92"/>
+                            <Button text="Export chart" onAction="#onExportChartImage" prefWidth="98"/>
+                        </HBox>
+                        <Label fx:id="annotationStatsLabel" text="Total: 0 | N: 0 | V: 0 | A: 0 | Other: 0" wrapText="true"/>
+
+                        <TableView fx:id="annotationsTableView" minHeight="190" prefHeight="330" maxWidth="Infinity" VBox.vgrow="ALWAYS">
+                            <columns>
+                                <TableColumn fx:id="sampleColumn" text="Sample" prefWidth="58"/>
+                                <TableColumn fx:id="timeColumn" text="Time" prefWidth="50"/>
+                                <TableColumn fx:id="typeColumn" text="Type" prefWidth="42"/>
+                                <TableColumn fx:id="sourceColumn" text="Source" prefWidth="62"/>
+                                <TableColumn fx:id="descriptionColumn" text="Description" prefWidth="120"/>
+                            </columns>
+                        </TableView>
+                    </VBox>
+
+                    <VBox spacing="6" styleClass="content-card compact-card">
+                        <padding>
+                            <Insets top="10" right="10" bottom="10" left="10"/>
+                        </padding>
+                        <Label text="Actions" styleClass="section-title"/>
+                        <Button text="Undo manual edit" onAction="#onUndoLastAction" maxWidth="Infinity"/>
+                        <Button text="Clear selected segment" onAction="#onClearSegmentSelection" maxWidth="Infinity"/>
+                        <Button text="Help" onAction="#onInteractionHelp" maxWidth="Infinity"/>
+                    </VBox>
                 </VBox>
+            </ScrollPane>
 
-                <VBox spacing="10" styleClass="content-card">
-                    <padding>
-                        <Insets top="18" right="18" bottom="18" left="18"/>
-                    </padding>
-
-                    <Label text="Saved ECG Records" styleClass="section-title"/>
-                    <ListView fx:id="recordsListView" prefHeight="210"/>
-                </VBox>
-            </VBox>
-
-            <VBox spacing="12" prefWidth="650" styleClass="content-card">
+            <VBox spacing="6" minWidth="760" prefWidth="1040" maxWidth="Infinity" styleClass="chart-card">
                 <padding>
-                    <Insets top="18" right="18" bottom="18" left="18"/>
+                    <Insets top="6" right="8" bottom="8" left="8"/>
                 </padding>
-
-                <Label text="Signal Visualization" styleClass="section-title"/>
 
                 <LineChart fx:id="signalChart"
                            animated="false"
                            createSymbols="false"
                            legendVisible="false"
-                           prefHeight="430">
+                           minHeight="360"
+                           prefHeight="520"
+                           maxHeight="Infinity"
+                           maxWidth="Infinity"
+                           VBox.vgrow="ALWAYS">
                     <xAxis>
                         <NumberAxis fx:id="xAxis" label="Time, s"/>
                     </xAxis>
@@ -120,30 +207,43 @@
                     </yAxis>
                 </LineChart>
 
-                <HBox spacing="8">
-                    <Button text="Start" onAction="#onSignalStart"/>
-                    <Button text="Previous" onAction="#onSignalPrevious"/>
-                    <Button text="Next" onAction="#onSignalNext"/>
-                    <Button text="End" onAction="#onSignalEnd"/>
-                    <Button text="Zoom In" onAction="#onZoomIn"/>
-                    <Button text="Zoom Out" onAction="#onZoomOut"/>
-                    <Button text="Reset" onAction="#onResetView"/>
-                </HBox>
+                <VBox spacing="14" styleClass="navigation-card compact-navigation" minHeight="185" prefHeight="195" maxHeight="220">
+                    <VBox.margin>
+                        <Insets top="16" right="0" bottom="16" left="0"/>
+                    </VBox.margin>
+                    <HBox spacing="7" alignment="CENTER_LEFT">
+                        <Button text="Start" onAction="#onSignalStart"/>
+                        <Button text="Previous" onAction="#onSignalPrevious"/>
+                        <Button text="Next" onAction="#onSignalNext"/>
+                        <Button text="End" onAction="#onSignalEnd"/>
+                        <Button text="Reset" onAction="#onResetView"/>
+                        <Button text="Clear segment" onAction="#onClearSegmentSelection"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button text="Go to suspicious" onAction="#onGoToSuspiciousSegment" styleClass="primary-button"/>
+                    </HBox>
 
-                <Label fx:id="windowInfoLabel" text="Window: —"/>
-                <Label fx:id="chartHintLabel" text="Mouse wheel: zoom. Drag chart horizontally: pan."/>
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="Position:"/>
+                        <Slider fx:id="navigationSlider" min="0" max="0" value="0" disable="true" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                    </HBox>
+                </VBox>
             </VBox>
-        </HBox>
+        </SplitPane>
     </center>
 
     <bottom>
-        <HBox styleClass="status-bar">
+        <HBox styleClass="status-bar" alignment="CENTER_LEFT" spacing="18">
             <padding>
-                <Insets top="10" right="10" bottom="10" left="10"/>
+                <Insets top="7" right="12" bottom="7" left="12"/>
             </padding>
-
             <Label fx:id="statusLabel" text="Status: Ready"/>
+            <Separator/>
+            <Label fx:id="windowInfoLabel" text="Window: —"/>
+            <Label fx:id="scaleInfoLabel" text="Scale: —"/>
+            <Label fx:id="segmentInfoLabel" text="Segment: —"/>
+            <Label fx:id="selectedEventLabel" text="Selected: —"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="chartHintLabel" text="Wheel: zoom. Drag: move. Right click: R-peak, annotation, segment."/>
         </HBox>
     </bottom>
-
 </BorderPane>

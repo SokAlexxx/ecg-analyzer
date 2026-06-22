@@ -39,10 +39,31 @@ public class DatabaseManager {
         try (Connection connection = getConnection();
              Statement statement = connection.createStatement()) {
 
+            statement.execute("PRAGMA foreign_keys = ON;");
             statement.execute(sql);
             addColumnIfMissing(statement, "ecg_records", "signal_format", "TEXT");
             addColumnIfMissing(statement, "ecg_records", "gains", "TEXT");
             addColumnIfMissing(statement, "ecg_records", "baselines", "TEXT");
+            statement.execute("""
+                    CREATE TABLE IF NOT EXISTS ecg_annotations (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        record_id INTEGER NOT NULL,
+                        sample_index INTEGER NOT NULL,
+                        annotation_type TEXT NOT NULL,
+                        description TEXT,
+                        FOREIGN KEY(record_id) REFERENCES ecg_records(id) ON DELETE CASCADE
+                    );
+                    """);
+            statement.execute("""
+                    DELETE FROM ecg_annotations
+                    WHERE id NOT IN (
+                        SELECT MIN(id)
+                        FROM ecg_annotations
+                        GROUP BY record_id, sample_index, annotation_type
+                    );
+                    """);
+            statement.execute("CREATE INDEX IF NOT EXISTS idx_ecg_annotations_record_id ON ecg_annotations(record_id);");
+            statement.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_ecg_annotations_unique ON ecg_annotations(record_id, sample_index, annotation_type);");
 
         } catch (SQLException e) {
             throw new RuntimeException("Помилка ініціалізації бази даних.", e);

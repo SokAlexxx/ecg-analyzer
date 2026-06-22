@@ -10,6 +10,13 @@ import java.util.List;
 
 public class MITBIHAnnotationParser {
 
+    private static final int NOTQRS = 0;
+    private static final int SKIP = 59;
+    private static final int NUM = 60;
+    private static final int SUB = 61;
+    private static final int CHN = 62;
+    private static final int AUX = 63;
+
     public List<ECGAnnotation> parse(File annotationFile) {
         List<ECGAnnotation> annotations = new ArrayList<>();
 
@@ -19,21 +26,45 @@ public class MITBIHAnnotationParser {
 
         try (FileInputStream inputStream = new FileInputStream(annotationFile)) {
             byte[] bytes = inputStream.readAllBytes();
-
             long sampleIndex = 0;
 
             for (int i = 0; i + 1 < bytes.length; i += 2) {
-                int b1 = bytes[i] & 0xFF;
-                int b2 = bytes[i + 1] & 0xFF;
+                int firstByte = bytes[i] & 0xFF;
+                int secondByte = bytes[i + 1] & 0xFF;
 
-                int interval = b1 + ((b2 & 0x03) << 8);
-                int annotationCode = (b2 & 0xFC) >> 2;
+                int interval = firstByte + ((secondByte & 0x03) << 8);
+                int annotationCode = (secondByte & 0xFC) >> 2;
 
-                if (annotationCode == 0) {
+                if (annotationCode == NOTQRS && interval == 0) {
                     break;
                 }
 
+                if (annotationCode == SKIP) {
+                    if (i + 5 >= bytes.length) {
+                        break;
+                    }
+                    long skipInterval = readUnsignedIntLittleEndian(bytes, i + 2);
+                    sampleIndex += skipInterval;
+                    i += 4;
+                    continue;
+                }
+
                 sampleIndex += interval;
+
+                if (annotationCode == NOTQRS) {
+                    continue;
+                }
+
+                if (annotationCode == AUX) {
+                    int auxLength = firstByte;
+                    int bytesToSkip = auxLength + (auxLength % 2);
+                    i += bytesToSkip;
+                    continue;
+                }
+
+                if (annotationCode == NUM || annotationCode == SUB || annotationCode == CHN) {
+                    continue;
+                }
 
                 String type = getAnnotationType(annotationCode);
                 String description = getAnnotationDescription(type);
@@ -42,10 +73,16 @@ public class MITBIHAnnotationParser {
             }
 
             return annotations;
-
         } catch (IOException e) {
             throw new RuntimeException("Помилка читання .atr файлу.", e);
         }
+    }
+
+    private long readUnsignedIntLittleEndian(byte[] bytes, int offset) {
+        return ((long) bytes[offset] & 0xFF)
+                | (((long) bytes[offset + 1] & 0xFF) << 8)
+                | (((long) bytes[offset + 2] & 0xFF) << 16)
+                | (((long) bytes[offset + 3] & 0xFF) << 24);
     }
 
     private String getAnnotationType(int code) {

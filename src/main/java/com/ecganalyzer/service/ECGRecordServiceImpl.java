@@ -8,6 +8,7 @@ import com.ecganalyzer.parser.MITBIHHeaderData;
 import com.ecganalyzer.parser.MITBIHHeaderParser;
 import com.ecganalyzer.parser.MITBIHSignalParser;
 import com.ecganalyzer.repository.ECGRecordRepository;
+import com.ecganalyzer.repository.ECGAnnotationRepository;
 import com.ecganalyzer.util.ECGFileUtils;
 
 import java.io.File;
@@ -19,6 +20,7 @@ public class ECGRecordServiceImpl implements ECGRecordService {
     private final MITBIHSignalParser signalParser = new MITBIHSignalParser();
     private final MITBIHAnnotationParser annotationParser = new MITBIHAnnotationParser();
     private final ECGRecordRepository recordRepository = new ECGRecordRepository();
+    private final ECGAnnotationRepository annotationRepository = new ECGAnnotationRepository();
 
     @Override
     public ECGRecord loadRecord(File selectedFile) {
@@ -64,7 +66,8 @@ public class ECGRecordServiceImpl implements ECGRecordService {
                 annotations
         );
 
-        recordRepository.saveOrUpdate(record);
+        int recordId = recordRepository.saveOrUpdate(record);
+        annotationRepository.replaceAnnotations(recordId, record.getAnnotations());
 
         return record;
     }
